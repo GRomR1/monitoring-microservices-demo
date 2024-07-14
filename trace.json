@@ -1,0 +1,20 @@
+[
+  {
+    "traceId": "5982fe77008310cc80f1da5e10147519",
+    "parentId": "90394f6bcffb5d13",
+    "id": "67fae42571535f60",
+    "kind": "SERVER",
+    "name": "/m/n/2.6.1",
+    "timestamp": 1516781775726000,
+    "duration": 26000,
+    "localEndpoint": {
+      "serviceName": "api"
+    },
+    "remoteEndpoint": {
+      "serviceName": "apip"
+    },
+    "tags": {
+      "data.http_response_code": "201"
+    }
+  }
+]
