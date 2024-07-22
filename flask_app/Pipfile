@@ -1,0 +1,17 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "==3.0.3"
+requests = "==2.32.3"
+opentelemetry-instrumentation-flask = "==0.46b0"
+opentelemetry-instrumentation-requests = "==0.46b0"
+opentelemetry-distro = "==0.46b0"
+opentelemetry-instrumentation-logging = "==0.46b0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

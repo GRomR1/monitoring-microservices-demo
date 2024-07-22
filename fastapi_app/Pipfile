@@ -14,6 +14,9 @@ opentelemetry-instrumentation-logging = "==0.46b0"
 opentelemetry-exporter-otlp = "==1.25.0"
 flask = "==3.0.3"
 prometheus-fastapi-instrumentator = "==7.0.0"
+sqlmodel = "==0.0.21"
+psycopg2-binary = "==2.9.9"
+opentelemetry-instrumentation-sqlalchemy = "==0.46b0"
 
 [dev-packages]
 

@@ -1,13 +1,13 @@
 import http from 'k6/http';
-import { sleep } from 'k6';
+import { check, sleep } from 'k6';
+
+export const options = {
+  vus: 10,
+  duration: '30s',
+};
 
 export default function () {
-  var server_list = ["localhost:8000", "localhost:8001", "localhost:8002"]
-  var endpoint_list = ["/", "/io_task", "/cpu_task", "/random_sleep", "/random_status", "/chain", "/error_test"]
-  server_list.forEach(function (server) {
-    endpoint_list.forEach(function (endpoint) {
-      http.get("http://" + server + endpoint);
-    });
-  });
+  const res = http.get('http://localhost:8001/users');
+  check(res, { 'status was 200': (r) => r.status == 200 });
   sleep(0.5);
 }

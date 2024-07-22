@@ -131,23 +131,57 @@ services:
       context: ./fastapi_app
     environment:
       - OTLP_GRPC_ENDPOINT=http://otel-collector:4317
+      - DATABASE_URL=postgresql://user:password@postgres-db:5432/db
     command:
       - 'python3'
-      - 'simple_3_metrics.py'
+      # - 'simple_3_metrics.py'
+      - 'simple_5_db.py'
     ports:
       - "8000:8000"
     depends_on:
       - otel-collector
+      - postgres-db
 
+  flask-app:
+    image: flask_app
+    build:
+      context: ./flask_app
+    environment:
+      - FASTAPI_URL=http://fastapi-app:8000
+      - OTEL_SERVICE_NAME=flask-app
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+      - OTEL_PYTHON_LOG_CORRELATION=true
 
+      - OTEL_EXPORTER_PROMETHEUS_HOST=0.0.0.0
+      - OTEL_EXPORTER_PROMETHEUS_PORT=9464
 
-  # db:
-  #   image: postgres:16-alpine
-  #   volumes:
-  #     - postgres-data:/var/lib/postgresql/data/
-  #   environment:
-  #     - POSTGRES_USER=hello_fastapi
-  #     - POSTGRES_PASSWORD=hello_fastapi
-  #     - POSTGRES_DB=hello_fastapi
-  #   ports:
-  #     - "5432:5432"
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp,prometheus
+      - OTEL_LOGS_EXPORTER=otlp
+
+      # - OTEL_TRACES_EXPORTER=console
+      # - OTEL_METRICS_EXPORTER=none
+      # - OTEL_LOGS_EXPORTER=none
+    command:
+      - 'opentelemetry-instrument'
+      - 'python3'
+      - 'simple_client.py'
+    ports:
+      - "8001:8001"
+      - "9464:9464"
+    depends_on:
+      - otel-collector
+
+  postgres-db:
+    image: postgres:16-alpine
+    volumes:
+      # - ./data/postgres/:/var/lib/postgresql/data/
+      - ./etc/postgres/:/docker-entrypoint-initdb.d/
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=db
+    ports:
+      - "5432:5432"

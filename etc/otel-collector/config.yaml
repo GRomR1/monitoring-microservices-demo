@@ -18,6 +18,11 @@ exporters:
   prometheus:
     endpoint: 0.0.0.0:8889
 
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    target_info:
+      enabled: true
+
   otlp/jaeger:
     endpoint: "jaeger:4317"
     tls:
@@ -27,6 +32,11 @@ exporters:
     endpoint: "tempo:4317"
     tls:
       insecure: true
+
+# connectors:
+#   spanmetrics:
+#     exclude_dimensions: ['status.code']
+#     # namespace: span.metrics
 
 processors:
   batch:
@@ -66,3 +76,10 @@ service:
       receivers: [otlp]
       processors: [batch, attributes/delete_unused]
       exporters: [logging, otlphttp/loki]
+
+    # traces/2:
+    #   receivers: [otlp]
+    #   exporters: [spanmetrics]
+    # metrics/2:
+    #   receivers: [spanmetrics]
+    #   exporters: [prometheusremotewrite]
