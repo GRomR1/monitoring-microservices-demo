@@ -15,8 +15,8 @@ FASTAPI_URL=os.environ.get("FASTAPI_URL", "http://localhost:8000")
 
 @app.route("/")
 def index():
-    logger.info("hello-word")
-    return "hello-word"
+    logger.info("hello-world")
+    return "hello-world"
 
 
 @app.route("/users")

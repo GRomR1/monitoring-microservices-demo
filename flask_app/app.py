@@ -8,8 +8,8 @@ logger.setLevel(logging.INFO)
 
 @app.route("/")
 def index():
-    logger.info("hello-word")
-    return "hello-word"
+    logger.info("hello-world")
+    return "hello-world"
 
 
 if __name__ == "__main__":

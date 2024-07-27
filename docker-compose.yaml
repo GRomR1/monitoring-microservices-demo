@@ -167,7 +167,7 @@ services:
     command:
       - 'opentelemetry-instrument'
       - 'python3'
-      - 'simple_client.py'
+      - 'app_client.py'
     ports:
       - "8001:8001"
       - "9464:9464"
