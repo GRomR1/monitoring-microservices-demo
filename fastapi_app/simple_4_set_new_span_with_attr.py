@@ -75,15 +75,15 @@ def do_long_processing_job():
 def sleep_rand():
     tracer = trace.get_tracer_provider().get_tracer(service_name)
     processing_time = None
-    with tracer.start_as_current_span("sleep") as child:
+    with tracer.start_as_current_span("do_long_processing_job") as child:
         child.set_attribute("operation.name", "do_long_processing_job")
-        current_span = trace.get_current_span()
-        logger.info(child == current_span)
+
         child.add_event("Gonna try it!")
         processing_time = do_long_processing_job()
-        logger.info(f"do_long_processing_job result: {processing_time}")
-        current_span.set_attribute("processing.time", processing_time)
         child.add_event("Did it!")
+
+        logger.info(f"do_long_processing_job result: {processing_time}")
+        child.set_attribute("processing.time", processing_time)
     return {"processing_time": processing_time}
 
 

@@ -73,19 +73,6 @@ class EndpointFilter(logging.Filter):
 # Filter out /endpoint
 logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
 
-meter = metrics.get_meter(__name__)
-
-check_count_counter = meter.create_counter(
-    "check_count", description="Count the number of calling check_count method"
-)
-
-@app.get("/check_count")
-def check_count():
-    check_count_counter.add(1)
-    check_count_counter.
-    return {}
-
-
 @app.get("/")
 def health_check():
     logger.info("Hello World")

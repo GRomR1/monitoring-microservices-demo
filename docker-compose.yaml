@@ -134,7 +134,9 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres-db:5432/db
     command:
       - 'python3'
+      # - 'simple_2_logs_and_traces.py'
       # - 'simple_3_metrics.py'
+      # - 'simple_4_set_new_span_with_attr.py'
       - 'simple_5_db.py'
     ports:
       - "8000:8000"
