@@ -12,8 +12,9 @@ services:
   #   volumes:
   #     - ./data/tempo:/var/tempo
 
+  # Database to store traces by Grafana Labs
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:2.5.0  # tested on 2.5.0
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./etc/tempo/tempo.yaml:/etc/tempo.yaml
@@ -49,7 +50,7 @@ services:
 
   # Jaeger
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.59.0
     volumes:
       - ./etc/jaeger/jaeger-ui.json:/etc/jaeger/jaeger-ui.json
     command:
@@ -68,8 +69,8 @@ services:
 
   # And put them in an OTEL collector pipeline...
   otel-collector:
-    # image: otel/opentelemetry-collector-contrib:latest  # tested on 0.104.0
-    image: otel/opentelemetry-collector:latest # tested on 0.104.0
+    # image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector:0.104.0
     command: [ "--config=/etc/otel-collector.yaml" ]
     volumes:
       - ./etc/otel-collector/config.yaml:/etc/otel-collector.yaml
@@ -94,7 +95,7 @@ services:
       - "./etc/loki/loki.yaml:/etc/loki/loki.yaml"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.53.0
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -106,7 +107,7 @@ services:
       - "9090:9090"
 
   grafana:
-    image: grafana/grafana:latest # tested on 11.1.0
+    image: grafana/grafana:11.1.0 # tested on 11.1.0
     volumes:
       - ./etc/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./etc/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml

@@ -33,11 +33,6 @@ exporters:
     tls:
       insecure: true
 
-# connectors:
-#   spanmetrics:
-#     exclude_dimensions: ['status.code']
-#     # namespace: span.metrics
-
 processors:
   batch:
 
@@ -65,21 +60,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      # processors: [batch]
-      # exporters: [debug, otlp/jaeger]
+      processors: [batch]
       exporters: [debug, otlp/tempo, otlp/jaeger]
     metrics:
       receivers: [otlp]
-      # processors: [batch]
+      processors: [batch]
       exporters: [debug, prometheus]
     logs:
       receivers: [otlp]
       processors: [batch, attributes/delete_unused]
       exporters: [logging, otlphttp/loki]
-
-    # traces/2:
-    #   receivers: [otlp]
-    #   exporters: [spanmetrics]
-    # metrics/2:
-    #   receivers: [spanmetrics]
-    #   exporters: [prometheusremotewrite]
