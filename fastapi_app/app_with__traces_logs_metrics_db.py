@@ -45,19 +45,15 @@ def root_endpoint():
 
 @app.get("/users", response_model=list[Users])
 def read_users():
-    #### in 20% of cases
-    # if randint(1, 5) == 5:
-    #     # wait 30 seconds
-    #     r = randint(1, 2)
-    #     if r == 2:
-    #         # sleep(10) in 10% of cases
-    #         sleep(10)
-    #     else:
-    #         # emit HTTPException in 10% of cases
-    #         raise HTTPException(status_code=500)
+    a = randint(1, 10)
 
-    #### emit HTTPException in 10% of cases
-    if randint(1, 10) == 10:
+    ### sleep 10 seconds in 10% of cases
+    if a == 10:
+        logging.info("wait 10")
+        sleep(10)
+
+    ### emit HTTPException in 10% of cases
+    if a == 9:
         logging.error("error")
         raise HTTPException(
             status_code=500, detail="HTTPException emmited in read_users method"
@@ -69,8 +65,9 @@ def read_users():
         return users
 
 
-def main():
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
 if __name__ == "__main__":
-    main()
+    log_config = uvicorn.config.LOGGING_CONFIG
+    log_config["formatters"]["access"][
+        "fmt"
+    ] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=log_config)

@@ -27,6 +27,27 @@ services:
     # depends_on:
     #   - init
 
+  # Generate fake traces...
+  k6-gen:
+    image: ghcr.io/grafana/xk6-client-tracing:latest # tested on v0.0.5
+    environment:
+      - ENDPOINT=otel-collector:4317
+    depends_on:
+      - otel-collector
+
+  # Generate fake traces (simplest one)...
+  telemetry-gen:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - traces
+      - --otlp-insecure
+      - --otlp-endpoint=otel-collector:4317
+      - --duration=30s
+      - --workers=4
+      - --rate=4
+    depends_on:
+      - otel-collector
+
   # Jaeger
   jaeger:
     image: jaegertracing/all-in-one:1.59.0
@@ -104,65 +125,3 @@ services:
       - tempo
       - loki
 
-
-  fastapi-app:
-    image: fastapi_app
-    build:
-      context: ./fastapi_app
-    environment:
-      - OTLP_GRPC_ENDPOINT=http://otel-collector:4317
-      - DATABASE_URL=postgresql://user:password@postgres-db:5432/db
-    command:
-      - 'python3'
-      # - 'app_with__traces.py'
-      - 'app_with__traces_logs_metrics_db.py'
-    ports:
-      - "8000:8000"
-    depends_on:
-      - otel-collector
-      - postgres-db
-
-  flask-app:
-    image: flask_app
-    build:
-      context: ./flask_app
-    environment:
-      - FASTAPI_URL=http://fastapi-app:8000
-      - OTEL_SERVICE_NAME=flask-app
-      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
-      - OTEL_PYTHON_LOG_CORRELATION=true
-
-      - OTEL_EXPORTER_PROMETHEUS_HOST=0.0.0.0
-      - OTEL_EXPORTER_PROMETHEUS_PORT=9464
-
-      - OTEL_TRACES_EXPORTER=otlp
-      - OTEL_METRICS_EXPORTER=otlp,prometheus
-      - OTEL_LOGS_EXPORTER=otlp
-
-      # - OTEL_TRACES_EXPORTER=console
-      # - OTEL_METRICS_EXPORTER=none
-      # - OTEL_LOGS_EXPORTER=none
-    command:
-      - 'opentelemetry-instrument'
-      - 'python3'
-      # - 'app.py'
-      - 'app_client.py'
-    ports:
-      - "8001:8001"
-      - "9464:9464"
-    depends_on:
-      - otel-collector
-
-  postgres-db:
-    image: postgres:16-alpine
-    volumes:
-      # - ./data/postgres/:/var/lib/postgresql/data/
-      - ./etc/postgres/:/docker-entrypoint-initdb.d/
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=db
-    ports:
-      - "5432:5432"

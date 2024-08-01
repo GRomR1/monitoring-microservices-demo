@@ -10,6 +10,9 @@ opentelemetry-instrumentation-flask = "==0.46b0"
 opentelemetry-instrumentation-requests = "==0.46b0"
 opentelemetry-distro = "==0.46b0"
 opentelemetry-instrumentation-logging = "==0.46b0"
+opentelemetry-instrumentation = "==0.46b0"
+opentelemetry-exporter-otlp = "==1.25.0"
+opentelemetry-exporter-prometheus = "==0.46b0"
 
 [dev-packages]
 

@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import os
 
 import logging
-from instrumentation import instrument_logging, instrument_tracing
+from instrumentation import instrument_logging, instrument_tracing, instrument_metrics
 
 
 app = FastAPI()
@@ -22,6 +22,8 @@ logging.getLogger().addHandler(handler)
 # Send test message to log
 logging.info(f"{service_name} started, listening on port 8000")
 
+# Instrument metrics
+instrument_metrics(app=app)
 
 @app.get("/")
 def root_endpoint():
@@ -29,8 +31,9 @@ def root_endpoint():
     return {"message": "Hello World"}
 
 
-def main():
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
 if __name__ == "__main__":
-    main()
+    log_config = uvicorn.config.LOGGING_CONFIG
+    log_config["formatters"]["access"][
+        "fmt"
+    ] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_config=log_config)
