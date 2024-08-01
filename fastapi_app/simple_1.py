@@ -1,11 +1,19 @@
 import uvicorn
 from fastapi import FastAPI
 
-app = FastAPI()
+import logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    handlers=[logging.StreamHandler()],
+)
 
+app = FastAPI()
+service_name = "fastapi-app"
+logging.info(f"{service_name} started, listening on port 8000")
 
 @app.get("/")
-def health_check():
+def root_endpoint():
+    logging.info("Hello World")
     return {"message": "Hello World"}
 
 
