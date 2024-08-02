@@ -49,7 +49,7 @@ def read_users():
 
     ### sleep 10 seconds in 10% of cases
     if a == 10:
-        logging.info("wait 10")
+        logging.warning("this is a long long operation")
         sleep(10)
 
     ### emit HTTPException in 10% of cases
