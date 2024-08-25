@@ -1,0 +1,10 @@
+route:
+# `group_wait` default is 30s, indicating the duration to hold off before sending an alert notification.
+  group_wait: 5s
+  receiver: webhook_receiver
+
+receivers:
+  - name: webhook_receiver
+    webhook_configs:
+      - url: 'http://webhook-tester:8080/00000000-0000-0000-0000-000000000000'
+        send_resolved: false

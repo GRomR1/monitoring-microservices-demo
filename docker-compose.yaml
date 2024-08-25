@@ -92,6 +92,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.53.0
+    hostname: localhost
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
@@ -103,6 +104,37 @@ services:
       - prometheus_pyrra:/etc/prometheus/pyrra
     ports:
       - "9090:9090"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    hostname: localhost
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./etc/alertmanager/:/etc/alertmanager/
+      - alertmanager:/data
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--log.level=debug'
+
+  webhook-tester:
+    image: tarampampam/webhook-tester:1.1.0
+    command: serve --port 8080
+    ports:
+      - '8080:8080'
+    environment:
+      - CREATE_SESSION=00000000-0000-0000-0000-000000000000
+
+  karma:
+    image: ghcr.io/prymitive/karma:v0.120
+    ports:
+      - '8081:8081'
+    environment:
+      - ALERTMANAGER_URI=http://alertmanager:9093
+      - ALERTMANAGER_INTERVAL=10s
+      - PORT=8081
+    depends_on:
+      - alertmanager
 
   pyrra-api:
     image: ghcr.io/pyrra-dev/pyrra:v0.7.7
@@ -215,3 +247,4 @@ services:
 
 volumes:
   prometheus_pyrra: {}
+  alertmanager: {}
