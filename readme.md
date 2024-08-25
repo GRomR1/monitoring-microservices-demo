@@ -9,6 +9,7 @@
 - `OpenTelemetry Collector` - сбор и обработка OpenTelemetry-данных
 - `Loki` - хранилище логов
 - `Tempo` - хранилище трейсов
+- `Pyrra` - процессинг и UI для работы с SLO, бюджетом ошибок и другими индикаторами
 
 ## Описание архитектуры
 
@@ -48,3 +49,23 @@ curl http://127.0.0.1:8001/users
 ```
 docker-compose down -v
 ```
+
+## Запуск тестового сценария
+
+Запуск множества запросов на /users через k6:
+```sh
+k6 run k6-script.js
+```
+
+Просмотр индикатров SLO в [Pyrra](http://localhost:9099/):
+![pyrra_slo_indicators](./images/pyrra_slo_indicators.png)
+
+Просмотр изменения значения индикатров SLO в [Pyrra](http://localhost:9099/) (например Latency - `95% успешных запросов должны быть обработаны быстрее, чем за 1с`):
+![pyrra_latency_indicator](./images/pyrra_latency_indicator.png)
+
+Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
+![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
+
+Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
+![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
+![pyrra_availability_graphics](./images/pyrra_availability_graphics.png)

@@ -73,17 +73,63 @@ services:
     volumes:
       - "./etc/loki/loki.yaml:/etc/loki/loki.yaml"
 
+  # As such, we need to chown the volume in order for Tempo to start correctly.
+  pyrra-init:
+    image: ghcr.io/pyrra-dev/pyrra:v0.7.7
+    user: root
+    entrypoint:
+      - "chown"
+      - "65533:65533"
+      - "/etc/prometheus/pyrra"
+    volumes:
+      - prometheus_pyrra:/etc/prometheus/pyrra
+
+  pyrra-sleep:
+    image: ghcr.io/pyrra-dev/pyrra:v0.7.7
+    entrypoint:
+      - "sleep"
+      - "5"
+
   prometheus:
     image: prom/prometheus:v2.53.0
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
+      - --web.enable-lifecycle
       - --enable-feature=exemplar-storage
       - --enable-feature=native-histograms
     volumes:
       - ./etc/prometheus/prometheus.yaml:/etc/prometheus.yaml
+      - prometheus_pyrra:/etc/prometheus/pyrra
     ports:
       - "9090:9090"
+
+  pyrra-api:
+    image: ghcr.io/pyrra-dev/pyrra:v0.7.7
+    command:
+      - api
+      - --prometheus-url=http://prometheus:9090
+      - --prometheus-external-url=http://localhost:9090
+      - --api-url=http://pyrra-filesystem:9444
+    ports:
+      - "9099:9099"
+    depends_on:
+      - prometheus
+
+  pyrra-filesystem:
+    image: ghcr.io/pyrra-dev/pyrra:v0.7.7
+    command:
+      - filesystem
+      - --log-level=debug
+      - --prometheus-url=http://prometheus:9090
+      - --generic-rules
+    volumes:
+      - ./etc/pyrra:/etc/pyrra
+      - prometheus_pyrra:/etc/prometheus/pyrra
+    depends_on:
+      - prometheus
+      - pyrra-api
+      - pyrra-init
 
   grafana:
     image: grafana/grafana:11.1.0 # tested on 11.1.0
@@ -166,3 +212,6 @@ services:
       - POSTGRES_DB=db
     ports:
       - "5432:5432"
+
+volumes:
+  prometheus_pyrra: {}

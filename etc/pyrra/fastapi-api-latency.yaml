@@ -1,0 +1,14 @@
+apiVersion: pyrra.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: fastapi-api-latency
+  namespace: monitoring
+spec:
+  target: '95'
+  window: 1w
+  indicator:
+    latency:
+      success:
+        metric: http_request_duration_seconds_bucket{job="fastapi-app",status!~"5..",handler!="/metrics",le="1.0"}
+      total:
+        metric: http_request_duration_seconds_count{job="fastapi-app",handler!="/metrics"}

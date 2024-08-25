@@ -1,0 +1,14 @@
+apiVersion: pyrra.dev/v1alpha1
+kind: ServiceLevelObjective
+metadata:
+  name: fastapi-api-availability
+  namespace: monitoring
+spec:
+  target: '95'
+  window: 1w
+  indicator:
+    ratio:
+      errors:
+        metric: http_requests_total{status=~"5..",handler!="/metrics"}
+      total:
+        metric: http_requests_total{handler!="/metrics"}
