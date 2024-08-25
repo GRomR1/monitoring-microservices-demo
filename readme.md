@@ -72,3 +72,11 @@ k6 run k6-script.js
 Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
 ![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
 ![pyrra_availability_graphics](./images/pyrra_availability_graphics.png)
+
+
+# Полезные ссылки
+
+- https://sre.google/books/ - must-have SRE Books
+- https://blog.alexewerlof.com/p/slc - инструмент для работы с SLI/SLO
+- https://manassharma.hashnode.dev/opentelemetry-logs-deep-dive - хорошая обзорная статья про построение мониторинга на основе связанных сигналов телеметрии на базе OpenTelemtry & OpenObserve
+- https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/ - статья про расчет SLO на основе Prometheus метрик для веб-сервиса
