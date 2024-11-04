@@ -10,3 +10,4 @@ prometheus_fastapi_instrumentator==7.0.0
 opentelemetry-instrumentation-sqlalchemy==0.46b0
 sqlmodel==0.0.21
 psycopg2-binary==2.9.9
+pyroscope-io==0.8.7

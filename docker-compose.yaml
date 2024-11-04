@@ -14,7 +14,7 @@ services:
 
   # Database to store traces by Grafana Labs
   tempo:
-    image: grafana/tempo:2.5.0  # tested on 2.5.0
+    image: grafana/tempo:2.6.1  # tested on 2.6.1
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./etc/tempo/tempo.yaml:/etc/tempo.yaml
@@ -49,7 +49,7 @@ services:
   # And put them in an OTEL collector pipeline...
   otel-collector:
     # image: otel/opentelemetry-collector-contrib:latest
-    image: otel/opentelemetry-collector:0.104.0
+    image: otel/opentelemetry-collector:0.112.0
     command: [ "--config=/etc/otel-collector.yaml" ]
     volumes:
       - ./etc/otel-collector/config.yaml:/etc/otel-collector.yaml
@@ -91,7 +91,7 @@ services:
       - "5"
 
   prometheus:
-    image: prom/prometheus:v2.53.0
+    image: prom/prometheus:v2.55.0
     hostname: localhost
     command:
       - --config.file=/etc/prometheus.yaml
@@ -164,7 +164,7 @@ services:
       - pyrra-init
 
   grafana:
-    image: grafana/grafana:11.1.0 # tested on 11.1.0
+    image: grafana/grafana:11.3.0 # tested on 11.1.0
     volumes:
       - ./etc/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
       - ./etc/grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
@@ -175,12 +175,16 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceQLStreaming metricsSummary traceToMetrics traceqlSearch
-      - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
+      # - GF_INSTALL_PLUGINS=grafana-lokiexplore-app
+      - GF_INSTALL_PLUGINS=grafana-lokiexplore-app, grafana-pyroscope-app
+      # - GF_INSTALL_PLUGINS=https://storage.googleapis.com/integration-artifacts/grafana-lokiexplore-app/grafana-lokiexplore-app-latest.zip;grafana-lokiexplore-app
+
     ports:
       - "3000:3000"
     depends_on:
       - tempo
       - loki
+      - pyroscope
 
 
   fastapi-app:
@@ -190,10 +194,13 @@ services:
     environment:
       - OTLP_GRPC_ENDPOINT=http://otel-collector:4317
       - DATABASE_URL=postgresql://user:password@postgres-db:5432/db
+      - PYROSCOPE_ENDPOINT=http://pyroscope:4040
     command:
       - 'python3'
       # - 'app_with__traces.py'
-      - 'app_with__traces_logs_metrics_db.py'
+      # - 'app_with__traces_logs_metrics_db.py'
+      - 'app_with__traces_logs_metrics_profiles_db.py'
+      - "8000:8000"
     ports:
       - "8000:8000"
     depends_on:
@@ -244,6 +251,15 @@ services:
       - POSTGRES_DB=db
     ports:
       - "5432:5432"
+
+  pyroscope:
+    image: grafana/pyroscope:1.9.1
+    command: [ "-config.file=/etc/pyroscope.yml" ]
+    ports:
+      - "4040:4040"
+    volumes:
+      - ./etc/pyroscope/pyroscope.yml:/etc/pyroscope.yml
+
 
 volumes:
   prometheus_pyrra: {}

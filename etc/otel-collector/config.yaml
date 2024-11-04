@@ -9,9 +9,6 @@ receivers:
 exporters:
   debug:
 
-  logging:
-    verbosity: detailed
-
   otlphttp/loki:
     endpoint: http://loki:3100/otlp/
 
@@ -69,4 +66,4 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch, attributes/delete_unused]
-      exporters: [logging, otlphttp/loki]
+      exporters: [debug, otlphttp/loki]

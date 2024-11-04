@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 httpx = "==0.27.0"
+flask = "==3.0.3"
 fastapi = "==0.111.0"
 uvicorn = "==0.30.1"
 prometheus-client = "==0.20.0"
@@ -12,13 +13,13 @@ opentelemetry-distro = "==0.46b0"
 opentelemetry-instrumentation-fastapi = "==0.46b0"
 opentelemetry-instrumentation-logging = "==0.46b0"
 opentelemetry-exporter-otlp = "==1.25.0"
-flask = "==3.0.3"
 prometheus-fastapi-instrumentator = "==7.0.0"
+opentelemetry-instrumentation-sqlalchemy = "==0.46b0"
 sqlmodel = "==0.0.21"
 psycopg2-binary = "==2.9.9"
-opentelemetry-instrumentation-sqlalchemy = "==0.46b0"
-
-[dev-packages]
+pyroscope-io = "==0.8.7"
 
 [requires]
 python_version = "3.12"
+
+[dev-packages]

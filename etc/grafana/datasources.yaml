@@ -60,6 +60,15 @@ datasources:
         tags:
           - key: "service.name"
             value: "service_name"
+      tracesToProfiles:
+        customQuery: false
+        datasourceUid: "pyroscope"
+        profileTypeId: "process_cpu:cpu:nanoseconds:cpu:nanoseconds"
+        tags:
+          - key: "service.name"
+            value: "service_name"
+          - key: "http.route"
+            value: "endpoint"
     readOnly: false
     editable: true
   - uid: loki
@@ -100,3 +109,11 @@ datasources:
     readOnly: false
     editable: true
     # UID should match the datasourceUid in derivedFields.
+  - uid: pyroscope
+    orgId: 1
+    name: Pyroscope
+    type: grafana-pyroscope-datasource
+    access: proxy
+    url: http://pyroscope:4040
+    # jsonData:
+    #   keepCookies: [pyroscope_git_session]

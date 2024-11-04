@@ -17,7 +17,16 @@ from prometheus_fastapi_instrumentator import Instrumentator as MetricsInstrumen
 
 from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 
-def instrument_tracing(app, service_name, otlp_endpoint="http://localhost:4317", excluded_urls=""):
+import pyroscope
+
+# FIX_IT: the project https://github.com/grafana/otel-profiling-python conflicts with latest otel libs
+# will use a local copy
+from pyroscope_otel import PyroscopeSpanProcessor
+
+
+def instrument_tracing(
+    app, service_name, otlp_endpoint="http://localhost:4317", excluded_urls=""
+):
     resource = Resource.create(attributes={"service.name": service_name})
     tracer = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer)
@@ -61,8 +70,15 @@ def instrument_logging(service_name, otlp_endpoint="http://localhost:4317"):
 
     return handler
 
+
 def instrument_metrics(app):
     MetricsInstrumentator(excluded_handlers=["/metrics"]).instrument(app).expose(app)
+
+
+def instrument_profiling(tracer):
+    tracer.add_span_processor(PyroscopeSpanProcessor())
+
+    return tracer
 
 
 def instrument_database(engine, tracer):
