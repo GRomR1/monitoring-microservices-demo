@@ -34,7 +34,7 @@ func main() {
 		json.NewEncoder(w).Encode(albums)
 	})
 
-	port := ":8080"
+	port := ":8002"
 	log.Println("Server is running on port" + port)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

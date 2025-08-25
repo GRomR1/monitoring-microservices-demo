@@ -213,6 +213,7 @@ services:
       context: ./flask_app
     environment:
       - FASTAPI_URL=http://fastapi-app:8000
+      - GOLANG_URL=http://golang-app:8002
       - OTEL_SERVICE_NAME=flask-app
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
@@ -245,7 +246,7 @@ services:
     build:
       context: ./golang_app
     ports:
-      - "8002:8080"
+      - "8002:8002"
 
   postgres-db:
     image: postgres:16-alpine
@@ -267,8 +268,8 @@ services:
     volumes:
       - ./etc/pyroscope/pyroscope.yml:/etc/pyroscope.yml
 
-  autoinstrumenter:
-    image: grafana/beyla:latest
+  beyla:
+    image: grafana/beyla:2.5.8
     pid: "service:golang-app"
     privileged: true
     environment:

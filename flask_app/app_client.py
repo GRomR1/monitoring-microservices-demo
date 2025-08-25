@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 FASTAPI_URL=os.environ.get("FASTAPI_URL", "http://localhost:8000")
+GOLANG_URL=os.environ.get("GOLANG_URL", "http://localhost:8002")
 
 @app.route("/")
 def index():
@@ -22,6 +23,12 @@ def index():
 @app.route("/users")
 def show_all_users():
     res = requests.get(f"{FASTAPI_URL}/users")
+    return res.json(), res.status_code
+
+
+@app.route("/albums")
+def show_all_albums():
+    res = requests.get(f"{GOLANG_URL}/albums")
     return res.json(), res.status_code
 
 
