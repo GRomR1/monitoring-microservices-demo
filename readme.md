@@ -107,9 +107,9 @@ k6 run k6-script.js
 ![pyrra_availability_graphics](./images/pyrra_availability_graphics.png)
 
 
-## Остановка контейнеров
+## Остановка сервисов
 
-Остановить сервисы
+Остановить все сервисы
 ```
 docker-compose down -v
 ```
