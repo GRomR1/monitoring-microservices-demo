@@ -53,6 +53,7 @@ services:
     command: [ "--config=/etc/otel-collector.yaml" ]
     volumes:
       - ./etc/otel-collector/config.yaml:/etc/otel-collector.yaml
+      # - ./etc/otel-collector/simple-debug.yaml:/etc/otel-collector.yaml
     ports:
       # - "1888:1888"   # pprof extension
       # - "8888:8888"   # Prometheus metrics exposed by the collector
@@ -186,7 +187,6 @@ services:
       - loki
       - pyroscope
 
-
   fastapi-app:
     image: fastapi_app
     build:
@@ -213,6 +213,7 @@ services:
       context: ./flask_app
     environment:
       - FASTAPI_URL=http://fastapi-app:8000
+      - GOLANG_URL=http://golang-app:8002
       - OTEL_SERVICE_NAME=flask-app
       - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
@@ -240,6 +241,13 @@ services:
     depends_on:
       - otel-collector
 
+  golang-app:
+    image: golang_app
+    build:
+      context: ./golang_app
+    ports:
+      - "8002:8002"
+
   postgres-db:
     image: postgres:16-alpine
     volumes:
@@ -259,6 +267,20 @@ services:
       - "4040:4040"
     volumes:
       - ./etc/pyroscope/pyroscope.yml:/etc/pyroscope.yml
+
+  beyla:
+    image: grafana/beyla:2.5.8
+    pid: "service:golang-app"
+    privileged: true
+    environment:
+      BEYLA_CONFIG_PATH: /etc/beyla/config.yml
+    depends_on:
+      - otel-collector
+    ports:
+      - "8999:8999" # svc metrics
+      - "8998:8998" # internal metrics
+    volumes:
+      - ./etc/beyla/config.yml:/etc/beyla/config.yml
 
 
 volumes:

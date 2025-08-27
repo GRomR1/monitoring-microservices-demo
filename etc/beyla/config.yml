@@ -1,0 +1,21 @@
+discovery:
+  instrument:
+    - open_ports: 8002
+
+log_level: DEBUG
+
+ebpf:
+  context_propagation: headers
+
+otel_traces_export:
+  endpoint: http://otel-collector:4317
+
+prometheus_export:
+  port: 8999
+  path: /metrics
+
+internal_metrics:
+  exporter: prometheus
+  prometheus:
+    port: 8998
+    path: /metrics
