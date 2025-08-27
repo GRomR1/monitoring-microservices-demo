@@ -1,0 +1,21 @@
+services:
+  # Generate fake traces via https://github.com/grafana/xk6-client-tracing
+  k6-gen:
+    image: ghcr.io/grafana/xk6-client-tracing:latest # tested on v0.0.5
+    environment:
+      - ENDPOINT=otel-collector:4317
+    depends_on:
+      - otel-collector
+
+  # Generate fake traces (simplest one)...
+  telemetry-gen:
+    image: ghcr.io/open-telemetry/opentelemetry-collector-contrib/telemetrygen:latest
+    command:
+      - traces
+      - --otlp-insecure
+      - --otlp-endpoint=otel-collector:4317
+      - --duration=30s
+      - --workers=4
+      - --rate=4
+    depends_on:
+      - otel-collector
