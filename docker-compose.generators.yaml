@@ -1,5 +1,5 @@
 services:
-  # Generate fake traces...
+  # Generate fake traces via https://github.com/grafana/xk6-client-tracing
   k6-gen:
     image: ghcr.io/grafana/xk6-client-tracing:latest # tested on v0.0.5
     environment:
