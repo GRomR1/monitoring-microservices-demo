@@ -141,7 +141,11 @@ docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
 
 #### Описание взаимодействия сервисов:
 
-![flask-fastapi-arch-scheme.png](./images/flask-fastapi-arch-scheme.png)
+<!-- <img src="./images/flask-fastapi-arch-scheme.png" alt="Архитектура взаимодействия сервисов Flask и FastAPI" width="800"> -->
+<p align="center">
+  <img src="./images/flask-fastapi-arch-scheme.png" alt="Архитектура взаимодействия сервисов Flask и FastAPI" width="800">
+</p>
+<p align="center"><i>Архитектура взаимодействия сервисов Flask и FastAPI</i></p>
 
 #### Подробное описание сервисов:
 
@@ -174,12 +178,28 @@ docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
 #### Просмотр результатов:
 
 1. Открыть [Grafana](http://localhost:3000/explore), выбрать `Tempo`, переключиться в тип запроса `Search` и нажать `Run query`
-  ![grafana_explore_traces](./images/grafana_explore_traces1.png)
-2. Открыть [Jaeger UI](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`
-  ![jaeger_expore_traces](./images/jaeger_expore_traces1.png)
-3. В результатах поиска можно увидеть распределенный трейс, охватывающий оба сервиса (flask-app и fastapi-app) и запрос к базе данных
-  ![grafana_show_trace](./images/grafana_show_trace.png)
-  ![jaeger_show_trace](./images/jaeger_show_trace.png)
+  <!-- <img src="./images/grafana_explore_traces1.png" alt="Поиск трассировок в Grafana" width="800"> -->
+  <p align="center">
+    <img src="./images/grafana_explore_traces1.png" alt="Поиск трассировок в Grafana" width="800">
+  </p>
+  <p align="center"><i>Поиск трассировок в Grafana</i></p>
+1. Открыть [Jaeger UI](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`
+  <!-- <img src="./images/jaeger_expore_traces1.png" alt="Поиск трассировок в Jaeger" width="800"> -->
+  <p align="center">
+    <img src="./images/jaeger_expore_traces1.png" alt="Поиск трассировок в Jaeger" width="800">
+  </p>
+  <p align="center"><i>Поиск трассировок в Jaeger</i></p>
+1. В результатах поиска можно увидеть распределенный трейс, охватывающий оба сервиса (flask-app и fastapi-app) и запрос к базе данных
+  <!-- <img src="./images/grafana_show_trace.png" alt="Просмотр трассировки в Grafana" width="800"> -->
+  <p align="center">
+    <img src="./images/grafana_show_trace.png" alt="Просмотр трассировки в Grafana" width="800">
+  </p>
+  <p align="center"><i>Просмотр трассировки в Grafana</i></p>
+  <!-- <img src="./images/jaeger_show_trace.png" alt="Просмотр трассировки в Jaeger" width="800"> -->
+  <p align="center">
+    <img src="./images/jaeger_show_trace.png" alt="Просмотр трассировки в Jaeger" width="800">
+  </p>
+  <p align="center"><i>Просмотр трассировки в Jaeger</i></p>
 
 
 ### Сценарий 2: Запрос к сервисам Flask и Golang
@@ -285,17 +305,37 @@ export default function () {
    - Количество ошибок
 
 Просмотр индикатров SLO в [Pyrra](http://localhost:9099/):
-![pyrra_slo_indicators](./images/pyrra_slo_indicators.png)
+<!-- <img src="./images/pyrra_slo_indicators.png" alt="Индикаторы SLO в Pyrra" width="800"> -->
+<p align="center">
+  <img src="./images/pyrra_slo_indicators.png" alt="Индикаторы SLO в Pyrra" width="800">
+</p>
+<p align="center"><i>Индикаторы SLO в Pyrra</i></p>
 
 Просмотр изменения значения индикатров SLO в [Pyrra](http://localhost:9099/) (например Latency - `95% успешных запросов должны быть обработаны быстрее, чем за 1с`):
-![pyrra_latency_indicator](./images/pyrra_latency_indicator.png)
+<!-- <img src="./images/pyrra_latency_indicator.png" alt="Индикатор latency в Pyrra" width="800"> -->
+<p align="center">
+  <img src="./images/pyrra_latency_indicator.png" alt="Индикатор latency в Pyrra" width="800">
+</p>
+<p align="center"><i>Индикатор latency в Pyrra</i></p>
 
 Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
+<!-- <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800"> -->
+<p align="center">
+  <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800">
+</p>
+<p align="center"><i>Графики latency в Pyrra</i></p>
 
 Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
-![pyrra_availability_graphics](./images/pyrra_availability_graphics.png)
+<!-- <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800"> -->
+<p align="center">
+  <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800">
+</p>
+<p align="center"><i>Графики latency в Pyrra</i></p>
+<!-- <img src="./images/pyrra_availability_graphics.png" alt="Графики доступности в Pyrra" width="800"> -->
+<p align="center">
+  <img src="./images/pyrra_availability_graphics.png" alt="Графики доступности в Pyrra" width="800">
+</p>
+<p align="center"><i>Графики доступности в Pyrra</i></p>
 
 2. Открыть [Grafana](http://localhost:3000/) для просмотра графиков изменения показателей:
    - Графики изменения latency
