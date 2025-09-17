@@ -1,4 +1,4 @@
-# Demo Apps with Instrumented Metrics, Logs, Traces, and Profiles in Docker.
+# monitoring-microservices-demo
 
 ## Описание проекта
 
@@ -100,7 +100,7 @@ graph TD
 
 - **k6** - инструмент нагрузочного тестирования с открытым исходным кодом, ориентированный на разработчиков. Позволяет тестировать производительность и надежность приложений с минимальным потреблением ресурсов. Поддерживает HTTP/2, WebSockets, gRPC и другие протоколы.
 
-## Пользовательские сервисы
+### Пользовательские сервисы
 
 - **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry.
 
@@ -108,24 +108,15 @@ graph TD
 
 - **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF).
 
-## Базы данных
+### Базы данных
 
 - **postgres-db** (localhost:5432) - реляционная система управления базами данных PostgreSQL.
 
-## Запуск сервисов
+## Команды
 
-Запустить сервисы
-```
-docker-compose up -d
-```
-
-Запустить сервисы и дополнительно генераторы трейсов
-```
-docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
-```
-> Используемые контейнеры с генераторами трейсов
-> - Контейнер [grafana/xk6-client-tracing](https://github.com/grafana/xk6-client-tracing) - это расширение для k6, предназначенное для генерации и отправки трейсов с целью нагрузочного тестирования.
-> - Контейнер **telemetrygen** из проекта [open-telemetry/opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) предназначен также для симуляции и тестирования конвейеров OpenTelemetry Collector, отправляя трейсы через протокол OTLP на указанный endpoint.
+- Запуск: `docker-compose up -d`
+- Запуск с генераторами: `docker compose -f docker-compose.yaml -f docker-compose.generators.yaml up -d`
+- Остановка: `docker-compose down -v`
 
 ## Сценарии использования
 
@@ -135,7 +126,38 @@ docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
 
 #### Описание взаимодействия сервисов:
 
-![flask-fastapi-arch-scheme.png](./images/flask-fastapi-arch-scheme.png)
+```mermaid
+sequenceDiagram
+    participant Клиент
+    participant FlaskApp as flask-app<br/>(Python/Flask)<br/>Auto-instrumentation
+    participant FastAPIApp as fastapi-app<br/>(Python/FastAPI)<br/>Manual instrumentation
+    participant PostgreSQL as postgres-db<br/>(PostgreSQL)
+    participant OTelCollector as OTEL Collector
+    participant Tempo as Tempo<br/>(Трейсы)
+    participant Prometheus as Prometheus<br/>(Метрики)
+    participant Loki as Loki<br/>(Логи)
+    participant Pyroscope as Pyroscope<br/>(Профили)
+    participant Grafana as Grafana<br/>(Визуализация)
+
+    Клиент->>FlaskApp: GET /users
+    FlaskApp->>FastAPIApp: GET /users
+    FastAPIApp->>PostgreSQL: SELECT users
+    PostgreSQL-->>FastAPIApp: Результаты запроса
+    FastAPIApp-->>FlaskApp: Ответ с пользователями
+    FlaskApp-->>Клиент: Ответ клиенту
+    
+    FlaskApp->>OTelCollector: Телеметрия (трейсы, метрики, логи)
+    FastAPIApp->>OTelCollector: Телеметрия (трейсы, метрики, логи, профили)
+    OTelCollector->>Tempo: Экспорт трейсов
+    OTelCollector->>Prometheus: Экспорт метрик
+    OTelCollector->>Loki: Экспорт логов
+    FastAPIApp->>Pyroscope: Профилировочные данные
+    
+    Tempo->>Grafana: Доступ к трейсам
+    Prometheus->>Grafana: Доступ к метрикам
+    Loki->>Grafana: Доступ к логам
+    Pyroscope->>Grafana: Доступ к профилям
+```
 
 #### Подробное описание сервисов:
 
@@ -168,69 +190,5 @@ docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
 #### Просмотр результатов:
 
 1. Открыть [Grafana](http://localhost:3000/explore), выбрать `Tempo`, переключиться в тип запроса `Search` и нажать `Run query`
-  ![grafana_explore_traces](./images/grafana_explore_traces1.png)
 2. Открыть [Jaeger UI](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`
-  ![jaeger_expore_traces](./images/jaeger_expore_traces1.png)
 3. В результатах поиска можно увидеть распределенный трейс, охватывающий оба сервиса (flask-app и fastapi-app) и запрос к базе данных
-  ![grafana_show_trace](./images/grafana_show_trace.png)
-  ![jaeger_show_trace](./images/jaeger_show_trace.png)
-
-
-### Сценарий 2: Запрос к сервисам Flask и Golang
-
-Пример сбора распределенных трассировок с двух взаимодействующих сервисов без каких-либо манипуляций с их кодом. С обоих сервисов собирается телеметрия посредством автоинструментации: через внешние библиотеки (сервис `flask-app`) и через ebpf (сервис `golang`)
-
-Описание цепочки  между двумя сервисами:
-TODO
-
-Описание сервисов:
-- `flask-app` - сервис, из предыдущего примера, без подключения opentelemtry-библиотек
-- `golang-app` - простой сервис на Golang, без подключения opentelemtry-библиотек
-
-Выполнить запрос к `flask-app`:
-```
-curl http://127.0.0.1:8001/albums
-```
-
-Найти запрос в UI:
-- Открыть [`Grafana`](http://localhost:3000/explore), выбрать `Tempo`, переключиться в тип запроса `Search` и нажать `Run query`.
-- Открыть [`Jaeger UI`](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`.
-- Открыть трейс запроса и получить всю информацию по спанам.
-
-
-### 3. Запуск нагрузочного сценария
-
-Запуск множества запросов на `/users` через [k6](https://k6.io/):
-```sh
-k6 run k6-script.js
-```
-
-Просмотр индикатров SLO в [Pyrra](http://localhost:9099/):
-![pyrra_slo_indicators](./images/pyrra_slo_indicators.png)
-
-Просмотр изменения значения индикатров SLO в [Pyrra](http://localhost:9099/) (например Latency - `95% успешных запросов должны быть обработаны быстрее, чем за 1с`):
-![pyrra_latency_indicator](./images/pyrra_latency_indicator.png)
-
-Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
-
-Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-![pyrra_latency_graphics](./images/pyrra_latency_graphics.png)
-![pyrra_availability_graphics](./images/pyrra_availability_graphics.png)
-
-
-## Остановка сервисов
-
-Остановить все сервисы
-```
-docker-compose down -v
-```
-
-# Полезные ссылки
-
-- https://sre.google/books/ - must-have SRE Books
-- https://blog.alexewerlof.com/p/slc - инструмент для работы с SLI/SLO
-- https://manassharma.hashnode.dev/opentelemetry-logs-deep-dive - хорошая обзорная статья про построение мониторинга на основе связанных сигналов телеметрии на базе OpenTelemtry & OpenObserve
-- https://levelup.gitconnected.com/monitoring-fastapi-with-grafana-prometheus-a-5-minute-guide-658280c7f358 - гайд с примерами настройки мониторинга FastAPI с Grafana + Prometheus
-- https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/ - статья про расчет SLO на основе Prometheus метрик для веб-сервиса
-- https://grafana.com/oss/pyroscope/ - использование профилировщика для задач мониторинга
