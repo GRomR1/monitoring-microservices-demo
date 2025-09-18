@@ -1,29 +1,4 @@
-# Demo Apps with Instrumented Metrics, Logs, Traces, and Profiles in Docker.
-
-# Содержание
-
-1. [Описание проекта](#описание-проекта)
-2. [Архитектура системы](#архитектура-системы)
-   - [Общая архитектура](#общая-архитектура)
-3. [Основные компоненты инфраструктуры](#основные-компоненты-инфраструктуры)
-   - [Сервисы мониторинга и трассировки](#сервисы-мониторинга-и-трассировки)
-   - [OpenTelemetry](#opentelemetry)
-   - [Алертинг и SLO](#алертинг-и-slo)
-   - [Нагрузочное тестирование](#нагрузочное-тестирование)
-   - [Пользовательские сервисы](#пользовательские-сервисы)
-   - [Базы данных](#базы-данных)
-4. [Команды](#команды)
-5. [Сценарии использования](#сценарии-использования)
-   - [Сценарий 1: Запрос к сервисам Flask и FastAPI](#сценарий-1-запрос-к-сервисам-flask-и-fastapi)
-   - [Сценарий 2: Запрос к сервисам Flask и Golang](#сценарий-2-запрос-к-сервисам-flask-и-golang)
-   - [Сценарий 3: Нагрузочное тестирование с помощью k6](#сценарий-3-нагрузочное-тестирование-с-помощью-k6)
-6. [Дашбоарды в Grafana](#дашбоарды-в-grafana)
-   - [FastAPI Dashboard](#fastapi-dashboard)
-   - [FastAPI Observability](#fastapi-observability)
-   - [Pyrra - List](#pyrra---list)
-   - [Pyrra - Detail](#pyrra---detail)
-7. [Полезные ссылки](#полезные-ссылки)
-8. [Материалы с докладов](#материалы-с-докладов)
+# monitoring-microservices-demo
 
 ## Описание проекта
 
@@ -127,22 +102,63 @@ graph TD
 
 ### Пользовательские сервисы
 
-- **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry. Подробнее см. в [fastapi_app/README.md](fastapi_app/README.md).
+- **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry. Подробное описание доступно в [fastapi_app/README.md](fastapi_app/README.md).
 
-- **flask-app** (http://localhost:8001) - сервис на Python с использованием фреймворка Flask и **автоматической инструментацией** OpenTelemetry. Подробнее см. в [flask_app/README.md](flask_app/README.md).
+- **flask-app** (http://localhost:8001) - сервис на Python с использованием фреймворка Flask и **автоматической инструментацией** OpenTelemetry. Подробное описание доступно в [flask_app/README.md](flask_app/README.md).
 
-- **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF). Подробнее см. в [golang_app/README.md](golang_app/README.md).
+- **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF). Подробное описание доступно в [golang_app/README.md](golang_app/README.md).
 
 ### Базы данных
 
 - **postgres-db** (localhost:5432) - реляционная система управления базами данных PostgreSQL.
-
 
 ## Команды
 
 - Запуск: `docker-compose up -d`
 - Запуск с генераторами: `docker compose -f docker-compose.yaml -f docker-compose.generators.yaml up -d`
 - Остановка: `docker-compose down -v`
+
+## Дашбоарды в Grafana
+
+В системе предусмотрены специализированные dashboards в Grafana для мониторинга различных аспектов работы сервисов:
+
+### 1. FastAPI Dashboard
+
+Dashboard для мониторинга сервиса fastapi-app, включающий следующие метрики:
+- Общее количество успешных и ошибочных запросов в минуту
+- Распределение запросов по статус кодам (2xx, 4xx, 5xx)
+- Процент успешных запросов (2xx) и ошибок (5xx) по endpoint'ам
+- Средняя продолжительность запросов с разбивкой по обработчикам
+- Квантили времени отклика (p50, p90)
+- Процент запросов с временем отклика менее 100ms
+
+### 2. FastAPI Observability
+
+Расширенный dashboard для наблюдаемости за сервисом fastapi-app, содержащий:
+- Общее количество запросов за последние 24 часа
+- Количество запросов по методам и endpoint'ам
+- Средняя продолжительность запросов по обработчикам
+- Процент успешных и ошибочных запросов
+- 99-й перцентиль времени отклика запросов
+- Частота запросов в секунду
+
+### 3. Pyrra - List
+
+Dashboard для отображения списка всех Service Level Objectives (SLO):
+- Название каждого SLO
+- Целевое значение SLO (объектив)
+- Временное окно измерения
+- Текущая доступность сервиса
+- Оставшийся бюджет ошибок (error budget)
+
+### 4. Pyrra - Detail
+
+Детальный dashboard для анализа конкретного SLO, включающий:
+- Целевое значение SLO и временное окно
+- Текущая доступность сервиса
+- Оставшийся бюджет ошибок в процентах
+- График изменения бюджета ошибок во времени
+- Частота запросов (rate) и количество ошибок (errors)
 
 ## Сценарии использования
 
@@ -152,11 +168,38 @@ graph TD
 
 #### Описание взаимодействия сервисов:
 
-<!-- <img src="./images/flask-fastapi-arch-scheme.png" alt="Архитектура взаимодействия сервисов Flask и FastAPI" width="800"> -->
-<p align="center">
-  <img src="./images/flask-fastapi-arch-scheme.png" alt="Архитектура взаимодействия сервисов Flask и FastAPI" width="800">
-</p>
-<p align="center"><i>Архитектура взаимодействия сервисов Flask и FastAPI</i></p>
+```mermaid
+sequenceDiagram
+    participant Клиент
+    participant FlaskApp as flask-app<br/>(Python/Flask)<br/>Auto-instrumentation
+    participant FastAPIApp as fastapi-app<br/>(Python/FastAPI)<br/>Manual instrumentation
+    participant PostgreSQL as postgres-db<br/>(PostgreSQL)
+    participant OTelCollector as OTEL Collector
+    participant Tempo as Tempo<br/>(Трейсы)
+    participant Prometheus as Prometheus<br/>(Метрики)
+    participant Loki as Loki<br/>(Логи)
+    participant Pyroscope as Pyroscope<br/>(Профили)
+    participant Grafana as Grafana<br/>(Визуализация)
+
+    Клиент->>FlaskApp: GET /users
+    FlaskApp->>FastAPIApp: GET /users
+    FastAPIApp->>PostgreSQL: SELECT users
+    PostgreSQL-->>FastAPIApp: Результаты запроса
+    FastAPIApp-->>FlaskApp: Ответ с пользователями
+    FlaskApp-->>Клиент: Ответ клиенту
+    
+    FlaskApp->>OTelCollector: Телеметрия (трейсы, метрики, логи)
+    FastAPIApp->>OTelCollector: Телеметрия (трейсы, метрики, логи, профили)
+    OTelCollector->>Tempo: Экспорт трейсов
+    OTelCollector->>Prometheus: Экспорт метрик
+    OTelCollector->>Loki: Экспорт логов
+    FastAPIApp->>Pyroscope: Профилировочные данные
+    
+    Tempo->>Grafana: Доступ к трейсам
+    Prometheus->>Grafana: Доступ к метрикам
+    Loki->>Grafana: Доступ к логам
+    Pyroscope->>Grafana: Доступ к профилям
+```
 
 #### Подробное описание сервисов:
 
@@ -189,37 +232,42 @@ graph TD
 #### Просмотр результатов:
 
 1. Открыть [Grafana](http://localhost:3000/explore), выбрать `Tempo`, переключиться в тип запроса `Search` и нажать `Run query`
-  <!-- <img src="./images/grafana_explore_traces1.png" alt="Поиск трассировок в Grafana" width="800"> -->
-  <p align="center">
-    <img src="./images/grafana_explore_traces1.png" alt="Поиск трассировок в Grafana" width="800">
-  </p>
-  <p align="center"><i>Поиск трассировок в Grafana</i></p>
-1. Открыть [Jaeger UI](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`
-  <!-- <img src="./images/jaeger_expore_traces1.png" alt="Поиск трассировок в Jaeger" width="800"> -->
-  <p align="center">
-    <img src="./images/jaeger_expore_traces1.png" alt="Поиск трассировок в Jaeger" width="800">
-  </p>
-  <p align="center"><i>Поиск трассировок в Jaeger</i></p>
-1. В результатах поиска можно увидеть распределенный трейс, охватывающий оба сервиса (flask-app и fastapi-app) и запрос к базе данных
-  <!-- <img src="./images/grafana_show_trace.png" alt="Просмотр трассировки в Grafana" width="800"> -->
-  <p align="center">
-    <img src="./images/grafana_show_trace.png" alt="Просмотр трассировки в Grafana" width="800">
-  </p>
-  <p align="center"><i>Просмотр трассировки в Grafana</i></p>
-  <!-- <img src="./images/jaeger_show_trace.png" alt="Просмотр трассировки в Jaeger" width="800"> -->
-  <p align="center">
-    <img src="./images/jaeger_show_trace.png" alt="Просмотр трассировки в Jaeger" width="800">
-  </p>
-  <p align="center"><i>Просмотр трассировки в Jaeger</i></p>
-
+2. Открыть [Jaeger UI](http://localhost:16686/), выбрать сервис внутри `Services` и нажать `Find Traces`
+3. В результатах поиска можно увидеть распределенный трейс, охватывающий оба сервиса (flask-app и fastapi-app) и запрос к базе данных
 
 ### Сценарий 2: Запрос к сервисам Flask и Golang
 
 Этот сценарий демонстрирует сбор распределенных трассировок с двух взаимодействующих сервисов без каких-либо манипуляций с их кодом. Телеметрия собирается посредством автоматической инструментации: через внешние библиотеки для сервиса `flask-app` и через eBPF для сервиса `golang-app`.
 
-Описание сервисов:
-- `flask-app` - сервис, из предыдущего примера, без подключения opentelemtry-библиотек
-- `golang-app` - простой сервис на Golang, без подключения opentelemtry-библиотек
+#### Описание взаимодействия сервисов:
+
+```mermaid
+sequenceDiagram
+    participant Клиент
+    participant FlaskApp as flask-app<br/>(Python/Flask)<br/>Auto-instrumentation
+    participant GolangApp as golang-app<br/>(Go)<br/>eBPF instrumentation
+    participant Beyla as Beyla<br/>(eBPF collector)
+    participant OTelCollector as OTEL Collector
+    participant Tempo as Tempo<br/>(Трейсы)
+    participant Prometheus as Prometheus<br/>(Метрики)
+    participant Loki as Loki<br/>(Логи)
+    participant Grafana as Grafana<br/>(Визуализация)
+
+    Клиент->>FlaskApp: GET /albums
+    FlaskApp->>GolangApp: GET /albums
+    GolangApp-->>FlaskApp: Ответ с альбомами
+    FlaskApp-->>Клиент: Ответ клиенту
+    
+    FlaskApp->>OTelCollector: Телеметрия (трейсы, метрики, логи)
+    Beyla->>OTelCollector: Телеметрия из golang-app
+    OTelCollector->>Tempo: Экспорт трейсов
+    OTelCollector->>Prometheus: Экспорт метрик
+    OTelCollector->>Loki: Экспорт логов
+    
+    Tempo->>Grafana: Доступ к трейсам
+    Prometheus->>Grafana: Доступ к метрикам
+    Loki->>Grafana: Доступ к логам
+```
 
 #### Подробное описание сервисов:
 
@@ -315,39 +363,6 @@ export default function () {
    - Задержки обработки запросов (latency)
    - Количество ошибок
 
-Просмотр индикатров SLO в [Pyrra](http://localhost:9099/):
-<!-- <img src="./images/pyrra_slo_indicators.png" alt="Индикаторы SLO в Pyrra" width="800"> -->
-<p align="center">
-  <img src="./images/pyrra_slo_indicators.png" alt="Индикаторы SLO в Pyrra" width="800">
-</p>
-<p align="center"><i>Индикаторы SLO в Pyrra</i></p>
-
-Просмотр изменения значения индикатров SLO в [Pyrra](http://localhost:9099/) (например Latency - `95% успешных запросов должны быть обработаны быстрее, чем за 1с`):
-<!-- <img src="./images/pyrra_latency_indicator.png" alt="Индикатор latency в Pyrra" width="800"> -->
-<p align="center">
-  <img src="./images/pyrra_latency_indicator.png" alt="Индикатор latency в Pyrra" width="800">
-</p>
-<p align="center"><i>Индикатор latency в Pyrra</i></p>
-
-Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-<!-- <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800"> -->
-<p align="center">
-  <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800">
-</p>
-<p align="center"><i>Графики latency в Pyrra</i></p>
-
-Просмотр графиков изменения показателей используемых в расчете SLO в [Pyrra](http://localhost:9099/):
-<!-- <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800"> -->
-<p align="center">
-  <img src="./images/pyrra_latency_graphics.png" alt="Графики latency в Pyrra" width="800">
-</p>
-<p align="center"><i>Графики latency в Pyrra</i></p>
-<!-- <img src="./images/pyrra_availability_graphics.png" alt="Графики доступности в Pyrra" width="800"> -->
-<p align="center">
-  <img src="./images/pyrra_availability_graphics.png" alt="Графики доступности в Pyrra" width="800">
-</p>
-<p align="center"><i>Графики доступности в Pyrra</i></p>
-
 2. Открыть [Grafana](http://localhost:3000/) для просмотра графиков изменения показателей:
    - Графики изменения latency
    - Графики доступности сервиса
@@ -362,55 +377,11 @@ export default function () {
 k6 run k6-script.js
 ```
 
-## Дашбоарды в Grafana
-
-В системе предусмотрены специализированные dashboards в Grafana для мониторинга различных аспектов работы сервисов:
-
-### 1. FastAPI Dashboard
-
-Dashboard для мониторинга сервиса fastapi-app, включающий следующие метрики:
-- Общее количество успешных и ошибочных запросов в минуту
-- Распределение запросов по статус кодам (2xx, 4xx, 5xx)
-- Процент успешных запросов (2xx) и ошибок (5xx) по endpoint'ам
-- Средняя продолжительность запросов с разбивкой по обработчикам
-- Квантили времени отклика (p50, p90)
-- Процент запросов с временем отклика менее 100ms
-
-### 2. FastAPI Observability
-
-Расширенный dashboard для наблюдаемости за сервисом fastapi-app, содержащий:
-- Общее количество запросов за последние 24 часа
-- Количество запросов по методам и endpoint'ам
-- Средняя продолжительность запросов по обработчикам
-- Процент успешных и ошибочных запросов
-- 99-й перцентиль времени отклика запросов
-- Частота запросов в секунду
-
-### 3. Pyrra - List
-
-Dashboard для отображения списка всех Service Level Objectives (SLO):
-- Название каждого SLO
-- Целевое значение SLO (объектив)
-- Временное окно измерения
-- Текущая доступность сервиса
-- Оставшийся бюджет ошибок (error budget)
-
-### 4. Pyrra - Detail
-
-Детальный dashboard для анализа конкретного SLO, включающий:
-- Целевое значение SLO и временное окно
-- Текущая доступность сервиса
-- Оставшийся бюджет ошибок в процентах
-- График изменения бюджета ошибок во времени
-- Частота запросов (rate) и количество ошибок (errors)
-
 ## Полезные ссылки
 
 - [SRE Books](https://sre.google/books/) - Комплексные руководства и практические рекомендации по принципам и практикам инженерии надежности сайтов от Google.
 
 - [Service Level Calculator](https://blog.alexewerlof.com/p/slc) - Интерактивный браузерный инструмент для понимания и реализации SLI/SLO, бюджетов ошибок и алертинга.
-
-- [The Modern Observability Problem](https://www.codeproject.com/articles/The-Modern-Observability-Problem) - Статья о вызовах и важности современной наблюдаемости в программных системах.
 
 - [SLO Formulas Implementation in PromQL](https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/) - Пошаговое руководство по реализации формул SLO в PromQL с использованием метрик Prometheus.
 

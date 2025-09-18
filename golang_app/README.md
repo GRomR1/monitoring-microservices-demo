@@ -1,30 +1,96 @@
-# Golang App
+# Golang приложение
 
-A simple golang web app that returns json on request to `/albums`. Does not contain any additional dependencies for instrumentation. The app is used with eBPF instrumentation via [Beyla](https://grafana.com/oss/beyla-ebpf/).
+## Описание
 
-## Environment vars
+Простое веб-приложение на Go, которое возвращает JSON-ответ по запросу к эндпоинту `/albums`. Не содержит дополнительных зависимостей для инструментации. Приложение используется с eBPF-инструментацией через [Beyla](https://grafana.com/oss/beyla-ebpf/).
 
-None
+## Файлы приложения
 
-# Running
+### `main.go`
+Основной файл приложения, содержащий реализацию веб-сервера с единственным эндпоинтом `/albums`, который возвращает статический список музыкальных альбомов в формате JSON. Приложение логирует заголовки входящих запросов.
 
-Simple running only web-server (without instrumentation)
+Структура данных альбома:
+- ID (string) - идентификатор альбома
+- Title (string) - название альбома
+- Artist (string) - исполнитель
+- Price (float64) - цена
+
+### `go.mod` и `go.sum`
+Файлы управления зависимостями Go. Приложение использует только стандартную библиотеку Go:
+- `encoding/json` - для работы с JSON
+- `log` - для логирования
+- `net/http` - для реализации веб-сервера
+
+### `Dockerfile`
+Конфигурация Docker для сборки приложения:
+1. Использует многоступенчатую сборку с образом `golang:1.25` в качестве сборщика
+2. Отключает CGO для статической сборки
+3. Использует образ `scratch` (пустой образ) для финального контейнера
+4. Копирует скомпилированное приложение в финальный образ
+5. Открывает порт 8080
+
+## Переменные окружения
+
+Приложение не использует переменные окружения.
+
+## Инструментация
+
+Приложение не содержит кода инструментации OpenTelemetry. Вместо этого используется автоматическая инструментация через Beyla с применением технологии eBPF:
+
+- Beyla запускается как отдельный сервис с привилегиями
+- Использует `pid: "service:golang-app"` для подключения к контейнеру приложения
+- Автоматически перехватывает сетевые вызовы на уровне ядра операционной системы
+- Собирает метрики производительности и трассировки без изменения кода приложения
+- Отправляет телеметрические данные в OTEL Collector
+
+Конфигурация Beyla находится в `etc/beyla/config.yml` и включает:
+- Отслеживание порта 8002
+- Экспорт трассировок в OTEL Collector через gRPC
+- Экспорт метрик в Prometheus на порту 8999
+- Внутренние метрики на порту 8998
+
+## Запуск
+
+Простой запуск веб-сервера без инструментации:
 ```sh
-$ go run .
-2025/08/27 10:31:13 Server is running on port:8002
+go run .
 ```
 
-# Testing
+При запуске в Docker-контейнере приложение будет доступно на порту 8002.
 
-Run http-request via curl command after running application.
+## Тестирование
+
+После запуска приложения можно выполнить тестовый запрос:
 ```sh
-❯ curl localhost:8002/albums
-[{"id":"1","title":"Blue Train","artist":"John Coltrane","price":56.99},{"id":"2","title":"Jeru","artist":"Gerry Mulligan","price":17.99},{"id":"3","title":"Sarah Vaughan and Clifford Brown","artist":"Sarah Vaughan","price":39.99}]
+curl localhost:8002/albums
 ```
 
-The application will show next logs (request headers):
+Ответ будет содержать JSON с массивом альбомов:
+```json
+[
+  {
+    "id": "1",
+    "title": "Blue Train",
+    "artist": "John Coltrane",
+    "price": 56.99
+  },
+  {
+    "id": "2",
+    "title": "Jeru",
+    "artist": "Gerry Mulligan",
+    "price": 17.99
+  },
+  {
+    "id": "3",
+    "title": "Sarah Vaughan and Clifford Brown",
+    "artist": "Sarah Vaughan",
+    "price": 39.99
+  }
+]
 ```
-...
+
+Приложение выводит в логи информацию о входящих запросах, включая заголовки:
+```
 2025/08/27 10:32:08 New request /albums
 2025/08/27 10:32:08   Request Headers:
 2025/08/27 10:32:08   - User-Agent: curl/8.7.1
