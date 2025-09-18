@@ -1,146 +1,99 @@
-# Auto-instrumentation Flask App
+# Auto-инструментирование Flask приложения
 
-## Packages
+## Описание
 
-Install pip reqired packages. Create `requirements.txt`:
-```
-flask==3.0.3
-requests==2.32.3
-opentelemetry-distro==0.46b0
-opentelemetry-instrumentation==0.46b0
-opentelemetry-exporter-otlp==1.25.0
-opentelemetry-instrumentation-flask==0.46b0
-opentelemetry-instrumentation-requests==0.46b0
-opentelemetry-instrumentation-logging==0.46b0
-opentelemetry-exporter-prometheus==0.46b0
-```
+Приложение Flask с автоматической инструментацией OpenTelemetry. Использует автоматическую инструментацию для сбора трассировок, метрик и логов без изменения кода приложения.
 
-## Environment vars
+## Файлы приложения
 
-`OTEL_SERVICE_NAME`: The name of the service generating the telemetry data.
+### `app.py`
+Базовое приложение Flask с единственным эндпоинтом `/`, возвращающим строку "hello-world". Используется как простой пример без внешних зависимостей.
 
-`OTEL_LOGS_EXPORTER`: The logs exporter to use, In this doc we're using the console exporter. If you have an opentelemetry collector set up, you can change this variable's value to console,otlp or just otlp. You will also have to set the OTEL_EXPORTER_OTLP_ENDPOINT variable to the endpoint of your opentelemetry collector.
+### `app_client.py`
+Основное приложение Flask с несколькими эндпоинтами:
+- `/` - возвращает "hello-world"
+- `/users` - вызывает эндпоинт `/users` сервиса FastAPI для получения списка пользователей
+- `/albums` - вызывает эндпоинт `/albums` сервиса Golang для получения списка альбомов
+- `/user/<username>` - вызывает сервис FastAPI для получения профиля конкретного пользователя
 
-`OTEL_TRACES_EXPORTER`: The traces exporter to use, In this doc we're using the console exporter. If you have an opentelemetry collector set up, you can change this variable's value to console,otlp or just otlp. You will also have to set the OTEL_EXPORTER_OTLP_ENDPOINT variable to the endpoint of your opentelemetry collector.
+Использует библиотеку `requests` для выполнения HTTP-запросов к другим сервисам.
 
-`OTEL_METRICS_EXPORTER`: The metrics exporter to use, In this doc we're using the console exporter. If you have an opentelemetry collector set up, you can change this variable's value to console,otlp or just otlp. You will also have to set the OTEL_EXPORTER_OTLP_ENDPOINT variable to the endpoint of your opentelemetry collector.
+## Переменные окружения
 
-`OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED`: This variable enables auto-instrumentation for the logging module.
+Приложение использует следующие переменные окружения:
 
-# Running
+| Переменная | Описание | Значение по умолчанию |
+|------------|----------|------------------------|
+| `FASTAPI_URL` | URL сервиса FastAPI | `http://localhost:8000` |
+| `GOLANG_URL` | URL сервиса Golang | `http://localhost:8002` |
+| `OTEL_SERVICE_NAME` | Имя сервиса для телеметрии | Не задано |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | Эндпоинт OTLP для экспорта телеметрии | Не задано |
 
+## Зависимости
 
-Simple running only web-server (without instrumentation)
+Зависимости приложения определены в `requirements.txt`:
+
+- `flask==3.0.3` - веб-фреймворк
+- `requests==2.32.3` - HTTP-клиент для выполнения запросов к другим сервисам
+- `opentelemetry-distro==0.46b0` - дистрибутив OpenTelemetry
+- `opentelemetry-instrumentation==0.46b0` - базовые инструменты инструментации
+- `opentelemetry-exporter-otlp==1.25.0` - экспорт телеметрии через OTLP
+- `opentelemetry-instrumentation-flask==0.46b0` - инструментация для Flask
+- `opentelemetry-instrumentation-requests==0.46b0` - инструментация для requests
+- `opentelemetry-instrumentation-logging==0.46b0` - инструментация для логирования
+- `opentelemetry-exporter-prometheus==0.46b0` - экспорт метрик в Prometheus
+
+## Docker
+
+Приложение упаковано в Docker-контейнер с использованием Python 3.12 slim в качестве базового образа.
+
+## Инструментация
+
+Приложение использует автоматическую инструментацию OpenTelemetry через команду `opentelemetry-instrument`, которая автоматически инструментирует Flask-приложение и библиотеку requests без изменения кода.
+
+### Примеры запуска
+
+1. Запуск без инструментации:
 ```sh
-python3 app.py
+python3 app_client.py
 ```
 
-## Instrumentate application
-
-Use some different methods to control what information need to be returned.
-
-1. Only traces out to console
+2. Запуск с инструментацией и выводом трассировок в консоль:
 ```sh
-OTEL_SERVICE_NAME=flask-app \
-OTEL_TRACES_EXPORTER=console \
-opentelemetry-instrument \
-    python3 app.py
+OTEL_SERVICE_NAME=flask-app \\
+OTEL_TRACES_EXPORTER=console \\
+opentelemetry-instrument \\
+    python3 app_client.py
 ```
 
-2. Only logs out to console
+3. Запуск с инструментацией и отправкой телеметрии в OTLP-коллектор:
 ```sh
-OTEL_SERVICE_NAME=flask-app \
-OTEL_TRACES_EXPORTER=none \
-OTEL_METRICS_EXPORTER=none \
-OTEL_LOGS_EXPORTER=console \
-OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true \
-OTEL_PYTHON_LOG_CORRELATION=true \
-OTEL_PYTHON_LOG_LEVEL=debug \
-opentelemetry-instrument \
-    python3 app.py
+OTEL_SERVICE_NAME=flask-app \\
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc \\
+OTEL_TRACES_EXPORTER=otlp \\
+OTEL_METRICS_EXPORTER=otlp \\
+OTEL_LOGS_EXPORTER=otlp \\
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 \\
+OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true \\
+OTEL_PYTHON_LOG_CORRELATION=true \\
+opentelemetry-instrument \\
+    python3 app_client.py
 ```
 
-3. Logs and traces out to console
+## Тестирование
+
+После запуска приложения можно выполнить тестовый запрос:
 ```sh
-OTEL_SERVICE_NAME=flask-app \
-OTEL_TRACES_EXPORTER=console \
-OTEL_METRICS_EXPORTER=none \
-OTEL_LOGS_EXPORTER=console \
-OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true \
-OTEL_PYTHON_LOG_CORRELATION=true \
-OTEL_PYTHON_LOG_LEVEL=debug \
-opentelemetry-instrument \
-    python3 app.py
+curl localhost:8001
 ```
 
-4. Console and otel-collector
+Ответ должен быть: `hello-world`
+
+Для тестирования других эндпоинтов:
 ```sh
-OTEL_SERVICE_NAME=flask-app \
-OTEL_EXPORTER_OTLP_PROTOCOL=grpc \
-OTEL_TRACES_EXPORTER=console,otlp \
-OTEL_METRICS_EXPORTER=console,otlp \
-OTEL_LOGS_EXPORTER=console,otlp \
-OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 \
-OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true \
-OTEL_PYTHON_LOG_CORRELATION=true \
-opentelemetry-instrument \
-    python3 app.py
-```
+# Получение списка пользователей
+curl localhost:8001/users
 
-# Testing
-
-Run http-request via curl command after running application.
-```sh
-❯ curl localhost:8001
-hello-world%
-```
-
-You will see the log on aplication about requested endpoint:
-```json
-{
-    "body": "127.0.0.1 - - [24/Aug/2024 21:47:20] \"GET / HTTP/1.1\" 200 -",
-    "severity_number": "<SeverityNumber.INFO: 9>",
-    "severity_text": "INFO",
-    "attributes": {
-        "otelSpanID": "0",
-        "otelTraceID": "0",
-        "otelTraceSampled": false,
-        "otelServiceName": "flask-app",
-        "code.filepath": "./docker-tracing-demo/flask_app/.venv/lib/python3.12/site-packages/werkzeug/_internal.py",
-        "code.function": "_log",
-        "code.lineno": 97
-    },
-    "dropped_attributes": 0,
-    "timestamp": "2024-08-24T18:47:20.480531Z",
-    "observed_timestamp": "2024-08-24T18:47:20.480546Z",
-    "trace_id": "0x00000000000000000000000000000000",
-    "span_id": "0x0000000000000000",
-    "trace_flags": 0,
-    "resource": "{'telemetry.sdk.language': 'python', 'telemetry.sdk.name': 'opentelemetry', 'telemetry.sdk.version': '1.25.0', 'service.name': 'flask-app', 'telemetry.auto.version': '0.46b0'}"
-}
-```
-
-Or this result if application will run with traces enabled:
-```json
-{
-    "body": "hello-world",
-    "severity_number": "<SeverityNumber.INFO: 9>",
-    "severity_text": "INFO",
-    "attributes": {
-        "otelSpanID": "f296a5fd627ea074",
-        "otelTraceID": "7ea0f1afc744150ffc7bb451d1906cf0",
-        "otelTraceSampled": true,
-        "otelServiceName": "flask-app",
-        "code.filepath": "./docker-tracing-demo/flask_app/app.py",
-        "code.function": "index",
-        "code.lineno": 11
-    },
-    "dropped_attributes": 0,
-    "timestamp": "2024-08-24T18:52:11.966384Z",
-    "observed_timestamp": "2024-08-24T18:52:11.966427Z",
-    "trace_id": "0x7ea0f1afc744150ffc7bb451d1906cf0",
-    "span_id": "0xf296a5fd627ea074",
-    "trace_flags": 1,
-    "resource": "{'telemetry.sdk.language': 'python', 'telemetry.sdk.name': 'opentelemetry', 'telemetry.sdk.version': '1.25.0', 'service.name': 'flask-app', 'telemetry.auto.version': '0.46b0'}"
-}
+# Получение списка альбомов
+curl localhost:8001/albums
 ```

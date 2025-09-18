@@ -102,11 +102,11 @@ graph TD
 
 ### Пользовательские сервисы
 
-- **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry.
+- **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry. Подробнее см. в [fastapi_app/README.md](fastapi_app/README.md).
 
-- **flask-app** (http://localhost:8001) - сервис на Python с использованием фреймворка Flask и **автоматической инструментацией** OpenTelemetry.
+- **flask-app** (http://localhost:8001) - сервис на Python с использованием фреймворка Flask и **автоматической инструментацией** OpenTelemetry. Подробнее см. в [flask_app/README.md](flask_app/README.md).
 
-- **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF).
+- **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF). Подробнее см. в [golang_app/README.md](golang_app/README.md).
 
 ### Базы данных
 

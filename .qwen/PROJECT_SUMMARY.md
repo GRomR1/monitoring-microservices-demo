@@ -32,14 +32,18 @@ Create a comprehensive documentation for a Docker-based microservices tracing de
   - Flask-Go interaction scenario
   - k6 load testing scenario
   - Grafana dashboard capabilities
+- Created detailed README.md files for each service:
+  - FastAPI app with descriptions of all Python files and their functionalities
+  - Flask app with information about automatic instrumentation
+  - Golang app with details about eBPF instrumentation via Beyla
 
 ## Current Plan
 1. [DONE] Create project overview and architecture documentation
 2. [DONE] Document service interactions and scenarios
 3. [DONE] Add visualization and dashboard information
 4. [DONE] Enhance README with properly formatted images
-5. [TODO] Review and finalize all documentation
-6. [TODO] Verify all technical details are accurate
+5. [DONE] Review and finalize all documentation
+6. [DONE] Verify all technical details are accurate
 
 ---
 

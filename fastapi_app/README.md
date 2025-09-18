@@ -1,11 +1,88 @@
-# Auto-instrumentation FastAPI App
+# Auto-инструментирование FastAPI приложения
 
-Show many ways to instrument your web app with FastAPI framework.
+Демонстрирует различные способы инструментирования веб-приложения на FastAPI.
 
-## Included files
+## Включенные файлы
 
-1. `app.py` - just a simple app with one root (`/`) endpoint returns `{"message": "Hello World"}`
-2. `app_with__traces.py` - the simple app with instrumented traces
-3. `app_with__traces_logs.py` - app_with__traces + logs
-4. `app_with__traces_logs_metrics.py` - app_with__traces_logs + metrics
-5. `app_with__traces_logs_metrics_db.py - app_with__traces_logs_metrics app with endpoint to select users from DB and auto-instrumented sql-calling functions
+1. `app.py` - простое приложение с одним корневым эндпоинтом (`/`), возвращающим `{"message": "Hello World"}`
+2. `app_with__manual_traces.py` - приложение с ручной инструментацией трассировки OpenTelemetry
+3. `app_with__traces.py` - простое приложение с автоматической инструментацией трассировки OpenTelemetry
+4. `app_with__traces_logs.py` - app_with__traces + логирование
+5. `app_with__traces_logs_metrics.py` - app_with__traces_logs + метрики
+6. `app_with__traces_logs_metrics_db.py` - app_with__traces_logs_metrics с эндпоинтом для выборки пользователей из БД и автоматической инструментацией SQL-запросов
+7. `app_with__traces_logs_metrics_profiles_db.py` - полнофункциональное приложение с трассировкой, логированием, метриками, доступом к БД и профилированием Pyroscope
+
+## Переменные окружения
+
+Приложение FastAPI использует следующие переменные окружения:
+
+| Переменная | Описание | Значение по умолчанию |
+|------------|----------|------------------------|
+| `OTLP_GRPC_ENDPOINT` | OTLP gRPC эндпоинт для отправки телеметрических данных | `http://localhost:4317` |
+| `DATABASE_URL` | URL подключения к базе данных PostgreSQL | `postgresql://user:password@localhost:5432/db` |
+| `PYROSCOPE_ENDPOINT` | Адрес сервера Pyroscope для профилирования | `http://localhost:4040` |
+
+## Описание файлов
+
+### `app.py`
+Минимальное приложение FastAPI с единственным корневым эндпоинтом, возвращающим `{"message": "Hello World"}`. Этот файл служит базовым приложением без функций наблюдаемости.
+
+### `app_with__manual_traces.py`
+Приложение FastAPI с ручной инструментацией трассировки OpenTelemetry. Эта реализация напрямую использует SDK OpenTelemetry для создания и управления спанами вручную. Включает эндпоинт `/sleep`, демонстрирующий ручное создание спанов.
+
+### `app_with__traces.py`
+Приложение FastAPI с автоматической инструментацией трассировки с использованием модуля `instrumentation.py`. Использует инструментацию FastAPI от OpenTelemetry для автоматического создания спанов при HTTP-запросах.
+
+### `app_with__traces_logs.py`
+Расширение `app_with__traces.py` с добавлением инструментации логирования. Позволяет отправлять данные логов на OTLP эндпоинт с корреляцией логов с трассировками.
+
+### `app_with__traces_logs_metrics.py`
+Расширение `app_with__traces_logs.py` с добавлением инструментации метрик с помощью Prometheus FastAPI Instrumentator. Собирает и предоставляет метрики о HTTP-запросах и производительности приложения.
+
+### `app_with__traces_logs_metrics_db.py`
+Расширение `app_with__traces_logs_metrics.py` с функциональностью доступа к базе данных. Эта версия включает:
+- Эндпоинт `/users` для получения данных пользователей из базы данных PostgreSQL
+- Инструментацию SQLAlchemy для трассировки запросов к базе данных
+- Управление подключениями к базе данных с использованием SQLModel
+- Симуляцию ошибок (HTTP 500) и долгих операций для тестирования наблюдаемости
+
+### `app_with__traces_logs_metrics_profiles_db.py`
+Самая полнофункциональная версия с полным набором функций наблюдаемости:
+- Трассировка с OpenTelemetry
+- Логирование с корреляцией с трассировками
+- Сбор и предоставление метрик
+- Доступ к базе данных с трассировкой
+- Интеграция профилирования Pyroscope
+- Пользовательский middleware для корреляции профилирования с трассировками
+- Дополнительные эндпоинты для операций с базой данных и длительных задач
+
+## Вспомогательные файлы
+
+### `instrumentation.py`
+Содержит вспомогательные функции для инструментации различных аспектов приложения:
+- `instrument_tracing()`: Настраивает трассировку OpenTelemetry
+- `instrument_logging()`: Настраивает логирование с экспортом через OTLP
+- `instrument_metrics()`: Включает сбор метрик Prometheus
+- `instrument_profiling()`: Интегрирует профилирование Pyroscope
+- `instrument_database()`: Инструментирует операции с базой данных SQLAlchemy
+
+### `db.py`
+Управляет конфигурацией и подключениями к базе данных с использованием SQLModel.
+
+### `models.py`
+Определяет модели базы данных, включая структуру таблицы `Users`.
+
+### `pyroscope_otel.py`
+Пользовательская интеграция между OpenTelemetry и Pyroscope для корреляции данных профилирования с трассировками. Содержит пользовательский `PyroscopeSpanProcessor`, который связывает спаны и образцы профилирования.
+
+### `Dockerfile`
+Конфигурация Docker для сборки образа приложения FastAPI. Использует Python 3.11 slim в качестве базового образа.
+
+## Зависимости
+
+Зависимости приложения определены в `requirements.txt` и включают:
+- FastAPI и Uvicorn для веб-фреймворка
+- Библиотеки OpenTelemetry для трассировки, логирования и метрик
+- Клиент Prometheus и инструментатор FastAPI для метрик
+- SQLModel и psycopg2 для доступа к базе данных
+- Клиент Pyroscope для профилирования
