@@ -381,13 +381,26 @@ Dashboard для отображения списка всех Service Level Obje
 
 ## Полезные ссылки
 
-- https://sre.google/books/ - must-have SRE Books
-- https://blog.alexewerlof.com/p/slc - инструмент для работы с SLI/SLO
-- https://manassharma.hashnode.dev/opentelemetry-logs-deep-dive - хорошая обзорная статья про построение мониторинга на основе связанных сигналов телеметрии на базе OpenTelemtry & OpenObserve
-- https://levelup.gitconnected.com/monitoring-fastapi-with-grafana-prometheus-a-5-minute-guide-658280c7f358 - гайд с примерами настройки мониторинга FastAPI с Grafana + Prometheus
-- https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/ - статья про расчет SLO на основе Prometheus метрик для веб-сервиса
-- https://grafana.com/oss/pyroscope/ - использование профилировщика для задач мониторинга
-- https://github.com/opensearch-project/opentelemetry-demo - проект для демонстрации возможности простроена системы мониторинга на базе opensearch
+- [SRE Books](https://sre.google/books/) - Комплексные руководства и практические рекомендации по принципам и практикам инженерии надежности сайтов от Google.
+
+- [Service Level Calculator](https://blog.alexewerlof.com/p/slc) - Интерактивный браузерный инструмент для понимания и реализации SLI/SLO, бюджетов ошибок и алертинга.
+
+- [The Modern Observability Problem](https://www.codeproject.com/articles/The-Modern-Observability-Problem) - Статья о вызовах и важности современной наблюдаемости в программных системах.
+
+- [SLO Formulas Implementation in PromQL](https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/) - Пошаговое руководство по реализации формул SLO в PromQL с использованием метрик Prometheus.
+
+- [Grafana Pyroscope](https://grafana.com/oss/pyroscope/) - Открытая база данных непрерывного профилирования для понимания и оптимизации производительности приложений.
+
+- [OpenSearch OpenTelemetry Demo](https://github.com/opensearch-project/opentelemetry-demo) - Адаптация микросервисного магазина OpenTelemetry для демонстрации OpenTelemetry с OpenSearch.
+
+- [Awesome OpenTelemetry](https://github.com/magsther/awesome-opentelemetry) - Кураторский список ресурсов OpenTelemetry: книги, видео, блоги, решения для трассировки и многое другое.
+
+- [Elastic Stack OpenTelemetry Demo](https://github.com/elastic/opentelemetry-demo) - Демонстрация микросервисного приложения с инструментацией Elastic OpenTelemetry для интегрированной наблюдаемости.
+
+- [Grafana MLTP Demo](https://github.com/grafana/intro-to-mltp) - Самостоятельная среда Docker для демонстрации стека наблюдаемости Grafana (метрики, логи, трассировки, профили).
+
+- [OpenTelemetry Demo](https://github.com/open-telemetry/opentelemetry-demo) - Микросервисный "Астрономический магазин" для демонстрации реализации OpenTelemetry для наблюдаемости.
 
 ## Материалы с докладов
 
+- [#ITGorky](materials/Наблюдаем_за_микросервисами_правильно.pdf) (2025. Нижний Новгород)
