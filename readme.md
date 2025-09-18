@@ -100,13 +100,7 @@ graph TD
 
 - **k6** - инструмент нагрузочного тестирования с открытым исходным кодом, ориентированный на разработчиков. Позволяет тестировать производительность и надежность приложений с минимальным потреблением ресурсов. Поддерживает HTTP/2, WebSockets, gRPC и другие протоколы.
 
-## Команды
-
-- Запуск: `docker-compose up -d`
-- Запуск с генераторами: `docker compose -f docker-compose.yaml -f docker-compose.generators.yaml up -d`
-- Остановка: `docker-compose down -v`
-
-## Пользовательские сервисы
+### Пользовательские сервисы
 
 - **fastapi-app** (http://localhost:8000) - сервис на Python с использованием фреймворка FastAPI и **ручной инструментацией** OpenTelemetry.
 
@@ -114,24 +108,16 @@ graph TD
 
 - **golang-app** (http://localhost:8002) - сервис на языке Go, **автоматически инструментированный через Beyla** (eBPF).
 
-## Базы данных
+### Базы данных
 
 - **postgres-db** (localhost:5432) - реляционная система управления базами данных PostgreSQL.
 
-## Запуск сервисов
 
-Запустить сервисы
-```
-docker-compose up -d
-```
+## Команды
 
-Запустить сервисы и дополнительно генераторы трейсов
-```
-docker compose -f docker-compose.yaml -f docker-compose.generators.yaml -d
-```
-> Используемые контейнеры с генераторами трейсов
-> - Контейнер [grafana/xk6-client-tracing](https://github.com/grafana/xk6-client-tracing) - это расширение для k6, предназначенное для генерации и отправки трейсов с целью нагрузочного тестирования.
-> - Контейнер **telemetrygen** из проекта [open-telemetry/opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib) предназначен также для симуляции и тестирования конвейеров OpenTelemetry Collector, отправляя трейсы через протокол OTLP на указанный endpoint.
+- Запуск: `docker-compose up -d`
+- Запуск с генераторами: `docker compose -f docker-compose.yaml -f docker-compose.generators.yaml up -d`
+- Остановка: `docker-compose down -v`
 
 ## Сценарии использования
 
