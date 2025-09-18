@@ -376,3 +376,15 @@ export default function () {
 # Запуск нагрузочного тестирования через k6
 k6 run k6-script.js
 ```
+
+## Полезные ссылки
+
+- https://sre.google/books/ - must-have SRE Books
+- https://blog.alexewerlof.com/p/slc - инструмент для работы с SLI/SLO
+- https://manassharma.hashnode.dev/opentelemetry-logs-deep-dive - хорошая обзорная статья про построение мониторинга на основе связанных сигналов телеметрии на базе OpenTelemtry & OpenObserve
+- https://levelup.gitconnected.com/monitoring-fastapi-with-grafana-prometheus-a-5-minute-guide-658280c7f358 - гайд с примерами настройки мониторинга FastAPI с Grafana + Prometheus
+- https://mkaz.me/blog/2024/slo-formulas-implementation-in-promql-step-by-step/ - статья про расчет SLO на основе Prometheus метрик для веб-сервиса
+- https://grafana.com/oss/pyroscope/ - использование профилировщика для задач мониторинга
+- https://github.com/opensearch-project/opentelemetry-demo - проект для демонстрации возможности простроена системы мониторинга на базе opensearch
+
+## Материалы с докладов
